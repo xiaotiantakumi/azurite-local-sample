@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Azure Function",
+      "request": "launch",
+      "runtimeArgs": ["run-script", "start", "--verbose"],
+      "runtimeExecutable": "npm",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/node_modules/azure-functions-core-tools/bin/func",
+      "type": "node",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Attach to Node Functions",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "preLaunchTask": "npm build (functions)"
+    }
+  ]
+}

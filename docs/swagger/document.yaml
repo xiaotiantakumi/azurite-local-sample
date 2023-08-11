@@ -1,0 +1,44 @@
+openapi: 3.0.2
+info:
+  title: Sample
+  version: "1.0"
+servers:
+  - url: http://localhost:7072/api
+paths:
+  /SampleTrigger:
+    get:
+      tags:
+        - Sample
+      summary: Sample Summary
+      description: Sample Description
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+            minLength: 0
+            maxLength: 50
+          description: 名前を入力してください。
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                Sample:
+                  value: Hello, World This HTTP triggered function executed successfully.
+  /SampleTableAccess:
+    get:
+      tags:
+        - SampleTableAccess
+      summary: demonstrate table access
+      description: This API to demonstrate table access.Using TypeORM.
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              examples:
+                Sample:
+                  value: Hello, World This HTTP triggered function executed successfully.
