@@ -17,7 +17,6 @@ project.lock.json
 /tools/NuGet.exe
 /App_Data
 /secrets
-/data
 .secrets
 appsettings.json
 local.settings.json
@@ -45,9 +44,6 @@ __pycache__/
 *$py.class
 
 # Azurite artifacts
-__blobstorage__
-__queuestorage__
-__azurite_db*__.json
 .DS_Store
 .eslintcache
 docs/swagger/.swagger-codegen/VERSION
