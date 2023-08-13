@@ -11,9 +11,9 @@ test("サンプルテスト", async () => {
   const req = {
     body: {},
     query: {
-      name: "aaa",
+      fileName: "sample.txt",
     },
   };
   await httpTrigger(context, req);
-  expect(context.res?.status).toBe(200);
+  expect(context.res?.body).toBeDefined();
 });
