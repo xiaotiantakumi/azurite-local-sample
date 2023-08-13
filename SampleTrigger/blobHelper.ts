@@ -1,6 +1,13 @@
 import { Context } from "@azure/functions";
 import { BlobServiceClient } from "@azure/storage-blob";
 
+/**
+ * 指定されたコンテナとファイル名に対応するBlobクライアントを取得します。コンテナが存在しない場合はエラーを返します。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @returns
+ */
 async function getBlobClient(
   context: Context,
   containerName: string,
@@ -21,6 +28,13 @@ async function getBlobClient(
   }
   return containerClient.getBlockBlobClient(fileName);
 }
+/**
+ * getBlobClientを使用してBlobクライアントを取得し、ファイルが存在するか確認します。ファイルが存在しない場合はエラーを返します。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @returns
+ */
 async function getExistingBlobClient(
   context: Context,
   containerName: string,
@@ -41,6 +55,13 @@ async function getExistingBlobClient(
   return blobClient;
 }
 
+/**
+ * 指定されたコンテナとファイル名からファイルをダウンロードし、バッファとして返します。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @returns
+ */
 export async function downloadStorageItemWithBuffer(
   context: Context,
   containerName: string,
@@ -64,6 +85,14 @@ export async function downloadStorageItemWithBuffer(
   }
 }
 
+/**
+ * 指定されたコンテナとファイル名にバッファをアップロードします。成功時には成功メッセージを返します。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @param buffer
+ * @returns
+ */
 export async function uploadStorageItemWithBuffer(
   context: Context,
   containerName: string,
@@ -89,7 +118,7 @@ export async function uploadStorageItemWithBuffer(
 }
 
 /**
- * ストレージからファイル削除を実行
+ * 指定されたコンテナとファイル名のファイルを削除します。成功時には成功メッセージを返します。
  * @param context
  * @param containerName
  * @param fileName
