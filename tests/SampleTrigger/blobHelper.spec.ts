@@ -14,7 +14,6 @@ const containerName = "container1";
 const deleteContainerName = "container2";
 test("ファイルダウンロード成功", async () => {
   const context = mock<Context>();
-  const containerName = "container1";
   const fileName = "sample.txt";
 
   const buffer = await downloadStorageItemWithBuffer(
@@ -27,7 +26,6 @@ test("ファイルダウンロード成功", async () => {
 
 test("ファイルアップロード成功", async () => {
   const context = mock<Context>();
-  const containerName = "container1";
   const fileName = "sample-file.txt";
   const buffer = Buffer.from("Hello, World!");
 
