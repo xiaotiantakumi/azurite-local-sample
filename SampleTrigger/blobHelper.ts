@@ -56,6 +56,23 @@ async function getExistingBlobClient(
 }
 
 /**
+ * getBlobClientを使用してBlobクライアントを取得し、ファイルが存在するか確認する。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @returns
+ */
+export async function hasFile(
+  context: Context,
+  containerName: string,
+  fileName: string
+): Promise<boolean> {
+  const blobClient = await getBlobClient(context, containerName, fileName);
+  if (!blobClient) return false;
+
+  return await blobClient.exists();
+}
+/**
  * 指定されたコンテナとファイル名からファイルをダウンロードし、バッファとして返します。
  * @param context
  * @param containerName
