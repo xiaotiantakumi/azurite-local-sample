@@ -4,7 +4,9 @@ import {
   deleteStorageItem,
   downloadStorageItemWithBuffer,
   uploadStorageItemWithBuffer,
+  hasFile,
 } from "../../SampleTrigger/blobHelper";
+import { BlockBlobClient } from "@azure/storage-blob";
 
 beforeAll(() => {
   jest.clearAllMocks();
@@ -58,6 +60,22 @@ test("ファイルダウンロード成功", async () => {
     fileName
   );
   expect(buffer).toBeDefined();
+});
+
+test("ファイル存在チェック - ファイルが存在する場合", async () => {
+  const context = mock<Context>();
+  const fileName = "sample.txt";
+
+  const result = await hasFile(context, containerName, fileName);
+  expect(result).toBe(true);
+});
+
+test("ファイル存在チェック - ファイルが存在しない場合", async () => {
+  const context = mock<Context>();
+  const fileName = "nonexistent-file.txt";
+
+  const result = await hasFile(context, containerName, fileName);
+  expect(result).toBe(false);
 });
 
 test("ファイルアップロード成功", async () => {
