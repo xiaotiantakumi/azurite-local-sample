@@ -42,14 +42,7 @@ jobs:
             popd
 
       - name: 'Wait for DB to be ready'
-        run: |
-            host="localhost"
-            dbUser="root"
-            dbPass="root"
-            until mysql --host=$host --user=$dbUser --password=$dbPass --protocol=TCP -e "SELECT 1"; do
-              echo "Waiting for DB to start..."
-              sleep 5
-            done
+        run: ./wait-for-db.sh
 
       - name: 'Run tests'
         run: |
