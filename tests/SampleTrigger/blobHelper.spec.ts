@@ -4,6 +4,7 @@ import {
   deleteStorageItem,
   downloadStorageItemWithBuffer,
   uploadStorageItemWithBuffer,
+  createBlockBlob,
   hasFile,
 } from "../../SampleTrigger/blobHelper";
 import { BlockBlobClient } from "@azure/storage-blob";
@@ -91,12 +92,7 @@ test("ファイル削除成功", async () => {
   const context = mock<Context>();
   const fileName = "sample-file.txt";
   const buffer = Buffer.from("Hello, World!");
-  await uploadStorageItemWithBuffer(
-    context,
-    deleteContainerName,
-    fileName,
-    buffer
-  );
+  await createBlockBlob(context, deleteContainerName, fileName, buffer);
   console.log("uploadStorageItemWithBuffer", context.res);
   const checkExist = await downloadStorageItemWithBuffer(
     context,

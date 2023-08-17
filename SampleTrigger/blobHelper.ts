@@ -1,5 +1,5 @@
 import { Context } from "@azure/functions";
-import { BlobServiceClient } from "@azure/storage-blob";
+import { BlobServiceClient, BlockBlobClient } from "@azure/storage-blob";
 
 /**
  * 指定されたコンテナとファイル名に対応するBlobクライアントを取得します。コンテナが存在しない場合はエラーを返します。
@@ -8,11 +8,7 @@ import { BlobServiceClient } from "@azure/storage-blob";
  * @param fileName
  * @returns
  */
-async function getBlobClient(
-  context: Context,
-  containerName: string,
-  fileName: string
-) {
+async function getContainerClient(containerName: string) {
   const STORAGE_CONNECTION_STRING = process.env.STORAGE_CONNECTION_STRING || "";
   const blobServiceClient = BlobServiceClient.fromConnectionString(
     STORAGE_CONNECTION_STRING
@@ -20,14 +16,11 @@ async function getBlobClient(
   const containerClient = blobServiceClient.getContainerClient(containerName);
   const hasContainer = await containerClient.exists();
   if (!hasContainer) {
-    context.res = {
-      status: 500,
-      body: `コンテナが存在しません`,
-    };
     return null;
   }
-  return containerClient.getBlockBlobClient(fileName);
+  return containerClient;
 }
+
 /**
  * getBlobClientを使用してBlobクライアントを取得し、ファイルが存在するか確認します。ファイルが存在しない場合はエラーを返します。
  * @param context
@@ -35,15 +28,22 @@ async function getBlobClient(
  * @param fileName
  * @returns
  */
-async function getExistingBlobClient(
+async function getBlockBlob(
   context: Context,
   containerName: string,
   fileName: string
-) {
-  const blobClient = await getBlobClient(context, containerName, fileName);
-  if (!blobClient) return null;
+): Promise<BlockBlobClient | null> {
+  const blobClient = await getContainerClient(containerName);
+  if (!blobClient) {
+    context.res = {
+      status: 500,
+      body: `コンテナが存在しません`,
+    };
+    return null;
+  }
+  const blockBlob = blobClient.getBlockBlobClient(fileName);
 
-  const hasItem = await blobClient.exists();
+  const hasItem = await blockBlob.exists();
   if (!hasItem) {
     context.res = {
       status: 404,
@@ -51,8 +51,34 @@ async function getExistingBlobClient(
     };
     return null;
   }
+  return blockBlob;
+}
 
-  return blobClient;
+/**
+ * 指定されたファイル名でファイルを作成します。
+ * @param context
+ * @param containerName
+ * @param fileName
+ * @returns
+ */
+export async function createBlockBlob(
+  context: Context,
+  containerName: string,
+  fileName: string,
+  buffer: Buffer
+): Promise<BlockBlobClient | null> {
+  const blobClient = await getContainerClient(containerName);
+  if (!blobClient) {
+    context.res = {
+      status: 500,
+      body: `コンテナが存在しません`,
+    };
+    return null;
+  }
+  // ここでファイルを作成する
+  const blockBlob = blobClient.getBlockBlobClient(fileName);
+  await blockBlob.upload(buffer, buffer.length);
+  return blockBlob;
 }
 
 /**
@@ -67,10 +93,10 @@ export async function hasFile(
   containerName: string,
   fileName: string
 ): Promise<boolean> {
-  const blobClient = await getBlobClient(context, containerName, fileName);
-  if (!blobClient) return false;
+  const blockBlob = await getBlockBlob(context, containerName, fileName);
+  if (!blockBlob) return false;
 
-  return await blobClient.exists();
+  return await blockBlob.exists();
 }
 /**
  * 指定されたコンテナとファイル名からファイルをダウンロードし、バッファとして返します。
@@ -85,11 +111,7 @@ export async function downloadStorageItemWithBuffer(
   fileName: string
 ) {
   try {
-    const blobClient = await getExistingBlobClient(
-      context,
-      containerName,
-      fileName
-    );
+    const blobClient = await getBlockBlob(context, containerName, fileName);
     if (!blobClient) return;
 
     const buffer = await blobClient.downloadToBuffer();
@@ -117,7 +139,7 @@ export async function uploadStorageItemWithBuffer(
   buffer: Buffer
 ) {
   try {
-    const blobClient = await getBlobClient(context, containerName, fileName);
+    const blobClient = await getBlockBlob(context, containerName, fileName);
     if (!blobClient) return;
 
     await blobClient.upload(buffer, buffer.length);
@@ -147,11 +169,7 @@ export async function deleteStorageItem(
   fileName: string
 ) {
   try {
-    const blobClient = await getExistingBlobClient(
-      context,
-      containerName,
-      fileName
-    );
+    const blobClient = await getBlockBlob(context, containerName, fileName);
     if (!blobClient) return;
 
     await blobClient.delete();
